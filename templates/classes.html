@@ -45,6 +45,88 @@
         border-radius: 5px;
         cursor: pointer;
     }
+
+    body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        li {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        li:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        strong {
+            color: #555;
+        }
+        .add-form {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
 </style>
 </head>
 
@@ -66,16 +148,15 @@
                 <input type="submit" value="Submit" style="background-color: #007bff; color: #fff; border: none; cursor: pointer; padding: 10px; border-radius: 5px; transition: background-color 0.3s ease;">
             </form>
 
-            <h1 style="text-align: center; color: #007bff; margin-bottom: 20px;">Class Details</h1>
             <div class="data-list" style="list-style: none; padding: 0; margin: 0;">
-             <h1>Classes</h1>
+             <h1>Class Details</h1>
     <ul>
         {% for class in classes_data %}
         <li style="border-bottom: 1px solid #ccc; padding: 10px 0;">
                     <strong>Class Id:</strong> {{ class[0] }}<br>
                     <strong>Class Name:</strong> {{ class[1] }}<br>
                     <strong>Trainer Id:</strong> {{ class[2] }}<br>
-                    <strong>time:</strong> {{ class[3] }}<br>
+                    <strong>Time:</strong> {{ class[3] }}<br>
                 </li>
         {% endfor %}
     </ul>
