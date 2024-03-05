@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members</title>
+        <style>
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .dialog-box {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+    }
+
+    .dialog-box h2 {
+        margin-top: 0;
+    }
+    .dialog-box p {
+        color: #666;
+    }
+
+    .dialog-box button {
+        padding: 8px 16px;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0;">
+
+    <div class="container" style="max-width: 800px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <a href="{{ url_for('index') }}" style="display: block; text-align: center; margin-bottom: 20px; text-decoration: none; color: #007bff;">Back to Menu</a>
+
+        <div class="add-form" style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin-top: 0; color: #333; margin-bottom: 20px; text-align: center;">Add New Payment</h2>
+            <form action="{{ url_for('insert_payment') }}" method="POST">
+                <label for="member_id" style="display: block; margin-bottom: 5px;"> Member Id:</label>
+                <input type="text" id="member_id" name="member_id" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required><br>
+                <label for="amount" style="display: block; margin-bottom: 5px;">Amount:</label>
+                <input type="text" id="amount" name="amount" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required><br>
+                <label for="payment_date" style="display: block; margin-bottom: 5px;">Time:</label>
+                <input type="date" id="payment_date" name="payment_date" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required><br>
+                <input type="submit" value="Submit" style="background-color: #007bff; color: #fff; border: none; cursor: pointer; padding: 10px; border-radius: 5px; transition: background-color 0.3s ease;">
+            </form>
+
+            <h1 style="text-align: center; color: #007bff; margin-bottom: 20px;">Payment Details</h1>
+            <div class="data-list" style="list-style: none; padding: 0; margin: 0;">
+             <h1>Payments</h1>
+    <ul>
+        {% for payment in payments_data %}
+        <li style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+                    <strong>payment Id:</strong> {{ payment[0] }}<br>
+                    <strong>Member ID:</strong> {{ payment[1] }}<br>
+                    <strong>Class Id:</strong> {{ payment[2] }}<br>
+                    <strong>Date:</strong> {{ payment[3] }}<br>
+                </li>
+        {% endfor %}
+    </ul>
+        </div>
+        </div>
+        <script>
+
+        function showDialog() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('error-dialog').style.display = 'block';
+        }
+
+        function closeDialog() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('error-dialog').style.display = 'none';
+        }
+        function goToLink()  {
+            window.location.href = "{{ url_for('index') }}";
+        }
+        window.onload = showDialog;
+            </script>
+       <div id="content">
+        {% if flag %}
+            <div id="overlay" class="overlay"></div>
+            <div id="error-dialog" class="dialog-box">
+                <h2>Error</h2>
+                {% if emsg %}
+                <div class="error-message">
+                        <b>{{ emsg }}</b>
+                </div>
+                {% endif %}
+                <p><b>An Error as occured while inserting</b>.</p>
+                <button onclick="goToLink()">Close</button>
+
+            </div>
+            {% endif %}
+            </div>
+    </div>
+</body>
+</html>
