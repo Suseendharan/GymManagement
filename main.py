@@ -44,7 +44,12 @@ def memberPage():
         result = db.executeStatement(query)
         members = result.all()
         print(members)
-    return render_template('members.html', members_data=members)
+
+        query = f"Select * From payments where member_email = '{username}'"
+        result = db.executeStatement(query)
+        payments = result.all()
+        print(payments)
+    return render_template('members.html', members_data=members, payments_data=payments)
 
 
 @app.route('/insert_payment', methods=['POST'])
@@ -54,8 +59,8 @@ def insert_payment():
         amount = request.form['amount']
         payment_date = request.form['payment_date']
     try:
-        sql = f"INSERT INTO Payments VALUES ('{member_email}', '{amount}', '{payment_date}');"
-        db.executeStatement(sql)
+        sql = f"INSERT INTO Payments (member_email,amount,payment_date) VALUES ('{member_email}', {amount}, '{payment_date}');"
+        db.executeStatement(sql, commit=True)
         return redirect(url_for('memberPage'))
     except SQLAlchemyError as error:
         return redirect(url_for('memberPage'))
@@ -88,7 +93,7 @@ def addUser():
             return render_template(
                 'homePage.html',
                 errorTitle="Can't find User",
-                errorMessage=rf"Invalid User({userEmail}) is database! Create the user."
+                errorMessage=rf"Invalid User({userEmail}) in database! Create the user."
             )
         if userType == "Admins":
             return redirect(url_for('adminPage'))
@@ -101,6 +106,3 @@ def addUser():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-# Close the database connection
-# db.close()

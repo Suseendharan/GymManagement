@@ -12,9 +12,11 @@ CREATE TABLE Members (
 
 CREATE TABLE Trainers (
     name VARCHAR(255) NOT NULL,
+    member_email VARCHAR(255) ,
     email VARCHAR(255) PRIMARY KEY,
     password VARCHAR(255),
-    startDate DATE
+    startDate DATE,
+    foreign key (member_email) references Members (email)
 );
 
 CREATE TABLE Admins (
@@ -24,10 +26,11 @@ CREATE TABLE Admins (
 );
 
 CREATE TABLE Payments (
-    member_email varchar(255) PRIMARY KEY,
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_email varchar(255),
     amount DECIMAL(10, 2),
     payment_date DATE,
-    FOREIGN KEY(member_email) REFERENCES Members(email) ON DELETE CASCADE
+	FOREIGN KEY(member_email) REFERENCES Members(email) ON DELETE CASCADE
 );
 
 insert into Admins values("Bailvan", "Bailvan@gym.com", "121");

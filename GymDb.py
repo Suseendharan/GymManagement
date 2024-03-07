@@ -48,9 +48,6 @@ class GymDb:
         statement = f"INSERT INTO Trainers (name, email, password, startDate) VALUES ('{name}', '{email}', '{password}', '{startDate}');"
         self.executeStatement(statement, True)
 
-    def insertCourse(self, courseCode, name):
-        statement = f"INSERT INTO Course (courseCode, name) VALUES ('{courseCode}', '{name}')"
-        self.executeStatement(statement, True)
 
     def dropExamBoard(self):
         self.executeStatement(f"drop database {GymDb.DbName};", printError=False)
