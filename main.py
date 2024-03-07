@@ -1,151 +1,106 @@
+from datetime import date
 import mysql.connector
-from mysql.connector import IntegrityError
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 
-# Database Configuration
-MYSQL_HOST = 'localhost'
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = '2004'
-MYSQL_DB = 'gymmanagementDB'
+from GymDb import GymDb
 
-# Connect to MySQL
-db = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASSWORD,
-    database=MYSQL_DB
-)
-cursor = db.cursor()
+USER = "root"
+PASSWORD = "2004"
+engine = create_engine(f"mysql+mysqlconnector://{USER}:{PASSWORD}@localhost")
+db = GymDb(engine.connect())
 
 app = Flask(__name__)
+app.secret_key = '2004'
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('homePage.html')
 
 
-@app.route('/members')
-def members():
-    cursor.execute("SELECT * FROM Members")
-    members_data = cursor.fetchall()
-    print(members_data)
-    return render_template('members.html', members_data=members_data)
+@app.route('/adminPage')
+def adminPage():
+    return render_template('admins.html')
 
 
-@app.route('/insert_member', methods=['POST'])
-def insert_member():
-    if request.method == 'POST':
-        name = request.form['name']
-        contact_number = request.form['phone']
-        email = request.form['email']
-        membership_type = request.form['membership_type']
-        start_date = request.form['join_date']
-
-        sql = "INSERT INTO Members (name, contact_number, email, membership_type, start_date) VALUES (%s, %s, %s, %s, %s)"
-        values = (name, contact_number, email, membership_type, start_date)
-
-        cursor.execute(sql, values)
-        db.commit()
-        return redirect(url_for('members'))
+@app.route('/trainerPage')
+def trainerPage():
+    if 'email' in session:
+        email = session['email']
+        query = f"Select * From Trainers where email = '{email}'; "
+        result = db.executeStatement(query)
+        trainers = result.all()
+        print(trainers)
+    return render_template('trainers.html', trainers_data=trainers, members_data=[""])
 
 
-@app.route('/trainers')
-def trainers():
-    cursor.execute("SELECT * FROM Trainers")
-    trainers_data = cursor.fetchall()
-    return render_template('trainers.html', trainers_data=trainers_data)
-
-
-@app.route('/insert_trainer', methods=['POST'])
-def insert_trainer():
-    if request.method == 'POST':
-        name = request.form['name']
-        speciality = request.form['speciality']
-        phone = request.form['Phone']
-
-        sql = "INSERT INTO Trainers (name, speciality,Contact_number) VALUES (%s, %s, %s)"
-        values = (name, speciality, phone)
-
-        cursor.execute(sql, values)
-        db.commit()
-        return redirect(url_for('trainers'))
-
-
-@app.route('/classes')
-def classes():
-    cursor.execute("SELECT * FROM Classes")
-    classes_data = cursor.fetchall()
-    return render_template('classes.html', classes_data=classes_data)
-
-
-@app.route('/insert_class', methods=['POST'])
-def insert_class():
-    if request.method == 'POST':
-        class_name = request.form['class_name']
-        trainer_id = request.form['trainer_id']
-        time = request.form['time']
-    try:
-        sql = "INSERT INTO Classes (class_name, trainer_id, time) VALUES (%s, %s, %s)"
-        values = (class_name, trainer_id, time)
-
-        cursor.execute(sql, values)
-        db.commit()
-        return redirect(url_for('classes'))
-    except IntegrityError as e:
-        return render_template('classes.html', flag=True)
-
-
-@app.route('/payments')
-def payments():
-    cursor.execute("SELECT * FROM Payments")
-    payments_data = cursor.fetchall()
-    return render_template('payments.html', payments_data=payments_data)
+@app.route('/memberPage')
+def memberPage():
+    if 'email' in session:
+        username = session['email']
+        query = f"Select * From Members where email = '{username}'; "
+        result = db.executeStatement(query)
+        members = result.all()
+        print(members)
+    return render_template('members.html', members_data=members)
 
 
 @app.route('/insert_payment', methods=['POST'])
 def insert_payment():
     if request.method == 'POST':
-        member_id = request.form['member_id']
+        member_email = session['email']
         amount = request.form['amount']
         payment_date = request.form['payment_date']
     try:
-        sql = "INSERT INTO Payments (member_id, amount, payment_date) VALUES (%s, %s, %s)"
-        values = (member_id, amount, payment_date)
-
-        cursor.execute(sql, values)
-        db.commit()
-        return redirect(url_for('payments'))
-    except IntegrityError as e:
-        return render_template('payments.html', flag=True)
+        sql = f"INSERT INTO Payments VALUES ('{member_email}', '{amount}', '{payment_date}');"
+        db.executeStatement(sql)
+        return redirect(url_for('memberPage'))
+    except SQLAlchemyError as error:
+        return redirect(url_for('memberPage'))
 
 
-@app.route('/attendance')
-def attendance():
-    cursor.execute("SELECT * FROM attendance")
-    attendance_data = cursor.fetchall()
-    return render_template('attendance.html', attendance_data=attendance_data)
+@app.route('/addUser', methods=['POST'])
+def addUser():
+    if request.method != 'POST': return
+    actionType = request.form["type"]
+    userType = request.form["userType"]
+    userName = request.form['userName']
+    userEmail = request.form['userEmail']
+    userPassword = request.form['userPassword']
 
-
-@app.route('/insert_attendance', methods=['POST'])
-def insert_attendance():
-    if request.method == 'POST':
-        member_id = request.form['member_id']
-        class_id = request.form['class_id']
-        date = request.form['payment_date']
-    try:
-        sql = "INSERT INTO attendance ( member_id, class_id,date) VALUES (%s, %s, %s)"
-        values = (member_id, class_id, date)
-
-        cursor.execute(sql, values)
-        db.commit()
-        return redirect(url_for('attendance'))
-    except IntegrityError as e:
-        return render_template('attendance.html', flag=True)
+    if actionType == "Create":
+        if userType == "Member":
+            db.insertMember(userName, userEmail, userPassword, date.today())
+        else:
+            db.insertTrainers(userName, userEmail, userPassword, date.today())
+    elif actionType == "Login":
+        for userType in ("Admins", "Members", "Trainers"):
+            query = f"Select * From {userType} Where email='{userEmail}' and password='{userPassword}';"
+            result = db.executeStatement(query)
+            if result is not None:
+                userData = result.all()
+                if len(userData) > 0:
+                    session['email'] = userEmail
+                    break
+        else:
+            return render_template(
+                'homePage.html',
+                errorTitle="Can't find User",
+                errorMessage=rf"Invalid User({userEmail}) is database! Create the user."
+            )
+        if userType == "Admins":
+            return redirect(url_for('adminPage'))
+        elif userType == "Trainers":
+            return redirect(url_for('trainerPage'))
+        elif userType == "Members":
+            return redirect(url_for('memberPage', var_name=userEmail))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
     app.run(debug=True)
 
 # Close the database connection
-db.close()
+# db.close()
