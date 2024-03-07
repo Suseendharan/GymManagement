@@ -23,4 +23,11 @@ CREATE TABLE Admins (
     password VARCHAR(255)
 );
 
+CREATE TABLE Payments (
+    member_email varchar(255) PRIMARY KEY,
+    amount DECIMAL(10, 2),
+    payment_date DATE,
+    FOREIGN KEY(member_email) REFERENCES Members(email) ON DELETE CASCADE
+);
+
 insert into Admins values("Bailvan", "Bailvan@gym.com", "121");
