@@ -30,7 +30,7 @@
             background-color: rgba(0.8, 0.8, 0.8, 0.8); /* Adjust transparency here */
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(91,91,91, 0.1);
         }
 
         header h1 {
@@ -63,7 +63,7 @@
         }
 
         .logout-btn:hover {
-            background-color: #002050;
+            background-color: #F81201;
         }
 
         /* Container Styles */
@@ -79,7 +79,7 @@
 
         /* Card Styles */
         .card {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(153,153,153, 0.8);
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 10px;
@@ -94,6 +94,26 @@
         .card p {
             margin-bottom: 10px;
             line-height: 1.6;
+        }
+                .card:hover {
+                background: linear-gradient(155deg, rgba(0,0,0, 0.8) , rgba(0, 123, 255, 1) );
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            transform: translateY(-10px);
+        }
+        .overlay {
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover .overlay {
+            opacity: 1;
         }
 
         /* Form Styles */
@@ -119,7 +139,7 @@
         }
 
         input[type="submit"] {
-            background-color: #0056b3;
+            background-color: #0484E5;
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -130,14 +150,22 @@
         }
 
         input[type="submit"]:hover {
-            background-color: #003366;
+            background-color: #8FCE00;
         }
 
-        /* Hover Effects */
         input[type="submit"]:hover,
         input[type="submit"]:focus {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(143,206,0, 0.2);
         }
+        .select-box {
+    width: 50%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
     </style>
 </head>
 <body>
@@ -154,25 +182,44 @@
             <h2>Member Details</h2>
             <ul>
                 {% for member in members_data %}
-
-                    <strong>Name:</strong> {{ member[0] }}<br>
-                    <strong>Email:</strong> {{ member[2] }}<br>
-                    <strong>Start Date:</strong> {{ member[3] }}<br>
-                    {% endfor %}
+                <strong>Name:</strong> {{ member[0] }}<br>
+                <strong>Email:</strong> {{ member[1] }}<br>
+                <strong>Start Date:</strong> {{ member[3] }}<br>
+                {% endfor %}
             </ul>
 
         </div>
 
         <div class="card">
             <h2>Assigned Trainer</h2>
-            {% if trainer %}
-            <p><strong>ID:</strong> {{ trainer.id }}</p>
-            <p><strong>Name:</strong> {{ trainer.name }}</p>
-            <p><strong>Email:</strong> {{ trainer.email }}</p>
-            <p><strong>Phone:</strong> {{ trainer.phone }}</p>
+            {% if selectTrainer_data %}
+                {% for selectTrainer in selectTrainer_data %}
+                <p><strong>Name:</strong> {{ selectTrainer[0]}}</p>
+                <p><strong>Email:</strong> {{ selectTrainer[1] }}</p>
+                {% endfor %}
             {% else %}
             <p>No trainer assigned.</p>
             {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Select Trainer</h2>
+
+ <form id="trainerForm" action="/update_trainer_members" method="POST">
+            <div class="form-group">
+                <label for="trainer">Select Trainer:</label>
+                <select id="trainer" name="trainer" class="select-box">
+                    <!-- Backend will populate this list -->
+                    {% for trainers in trainers_data %}
+                    <option value="{{ trainers[0] }}">{{ trainers[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="logout-btn">
+            </div>
+        </form>
+
         </div>
     </div>
 
@@ -183,11 +230,11 @@
             <form id="paymentForm" action="{{ url_for('insert_payment') }}" method="POST">
                 <div>
                     <label for="membership">Select Membership Type:</label>
-            <select id="membership" name="membership" onchange="calculateAmount()">
-                <option value="Basic">Basic ($50)</option>
-                <option value="Premium">Premium ($100)</option>
-                <option value="Gold">Gold ($150)</option>
-            </select>
+                    <select id="membership" name="membership" onchange="calculateAmount()">
+                        <option value="Basic">Basic ($50)</option>
+                        <option value="Gold">Gold ($150)</option>
+                        <option value="Premium">Premium ($100)</option>
+                    </select>
                     <br><br>
                 </div>
                 <div>

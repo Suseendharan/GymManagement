@@ -49,7 +49,18 @@ def memberPage():
         result = db.executeStatement(query)
         payments = result.all()
         print(payments)
-    return render_template('members.html', members_data=members, payments_data=payments)
+
+        query = f"Select * From trainers;"
+        result = db.executeStatement(query)
+        trainers_data = result.all()
+        print(trainers_data)
+
+        query = f"Select * From trainers where member_email = '{username}';"
+        result = db.executeStatement(query)
+        selectTrainer_data = result.all()
+        print(selectTrainer_data)
+
+    return render_template('members.html', members_data=members, payments_data=payments,trainers_data = trainers_data,selectTrainer_data = selectTrainer_data)
 
 
 @app.route('/insert_payment', methods=['POST'])
@@ -60,6 +71,19 @@ def insert_payment():
         payment_date = request.form['payment_date']
     try:
         sql = f"INSERT INTO Payments (member_email,amount,payment_date) VALUES ('{member_email}', {amount}, '{payment_date}');"
+        db.executeStatement(sql, commit=True)
+        return redirect(url_for('memberPage'))
+    except SQLAlchemyError as error:
+        return redirect(url_for('memberPage'))
+
+
+@app.route('/update_trainer_members', methods=['POST'])
+def update_trainer():
+    if request.method == 'POST':
+        member_email = session['email']
+        name = request.form['trainer']
+    try:
+        sql = f" update trainers set member_email = '{member_email}' where name = '{name}';"
         db.executeStatement(sql, commit=True)
         return redirect(url_for('memberPage'))
     except SQLAlchemyError as error:
